@@ -4,8 +4,17 @@
   "description": "A web scraper. Data gathered from top dealerships.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "server": "nodemon server.js"
   },
   "author": "Johnathan Guzman",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "*",
+    "express": "^4.17.1",
+    "puppeteer": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
 }
