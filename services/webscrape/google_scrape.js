@@ -1,9 +1,9 @@
 const puppeteer = require("puppeteer")
 
 const google_scrape = async (user_zip) => {
+    const google_url = "https://www.google.com/search?q=car+dealerships+in+"
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
-    const google_url = "https://www.google.com/search?q=car+dealerships+in+"
     await page.goto(`${google_url}${user_zip}`)
 
     const grab_google_info = await page.evaluate(() => {
