@@ -1,6 +1,5 @@
 const express = require("express")
 const axios = require("axios")
-const fetch = require("node-fetch")
 const cheerio = require('cheerio');
 const puppeteer = require("puppeteer")
 const router = express.Router()
