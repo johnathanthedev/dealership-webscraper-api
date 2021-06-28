@@ -4,7 +4,7 @@ const zip_check = require("../zip/zip_check")
 const google_scrape = async (user_zip) => {
     try {
         const google_url = "https://www.google.com/search?q=car+dealerships+in+"
-        const user_city = await zip_check(user_zip)
+        let user_city = await zip_check(user_zip)
 
         if (!!user_city.error_message) {
             return { error_message: user_city.error_message }
@@ -14,7 +14,7 @@ const google_scrape = async (user_zip) => {
 
         const browser = await puppeteer.launch({ headless: false })
         const page = await browser.newPage()
-    
+        user_city = user_city[0].city
         await page.goto(`${google_url}${user_city}`)
     
         const grab_google_info = await page.evaluate(() => {

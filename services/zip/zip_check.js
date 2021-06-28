@@ -15,7 +15,7 @@ const zip_check = async (user_zip) => {
 
         return data.results[`${user_zip}`] && us_city_check 
         ? data.results[`${user_zip}`].filter(obj => obj.country_code === "US") 
-        : { error_message: "Invalid zip. US only."}
+        : { error_message: "Invalid zip. US only." }
         
     } catch (error) {
         console.error(error.message)
