@@ -1,15 +1,15 @@
 const puppeteer = require("puppeteer");
 const zip_check = require("../zip/zip_check");
-
 class GoogleScrape {
-  constructor(user_zip) {
+  constructor(user_zip, vehicle_search_link) {
     this.user_zip = user_zip;
+    this.vehicle_search_link = vehicle_search_link;
   }
 
-  async get_dealerships_list() {
+  async get_car_list() {
     try {
-      const google_url = "https://www.google.com/search?q=car+dealerships+in+";
       let user_city = await zip_check(this.user_zip);
+      const google_url = `https://www.google.com/search?q=${this.vehicle_search_link}+for+sale+in+`;
 
       if (!!user_city.error_message) {
         return { error_message: user_city.error_message };
@@ -17,7 +17,7 @@ class GoogleScrape {
         return { error_message: "More than one city available" };
       }
 
-      const browser = await puppeteer.launch({ headless: true });
+      const browser = await puppeteer.launch({ headless: false });
       const page = await browser.newPage();
       user_city = user_city[0].city;
       await page.goto(`${google_url}${user_city}`);
@@ -42,6 +42,7 @@ class GoogleScrape {
       console.error(error.message);
     }
   }
+
 }
 
 module.exports = GoogleScrape;
