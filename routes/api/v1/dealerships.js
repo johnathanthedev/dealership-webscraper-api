@@ -1,18 +1,11 @@
 const express = require("express")
 const router = express.Router()
-const google_scrape = require("../../../services/webscrape/google_scrape")
-const zip_check = require("../../../services/zip/zip_check")
+const GoogleScrape = require("../../../services/webscrape/GoogleScrape")
 
 router.get("/", async (req, res) => {
         const user_zip = req.headers.user_zip
-        const google_results = await google_scrape(user_zip)
-        res.json(google_results)
-})
-
-router.get("/test_02", async (req, res) => {
-        const user_zip = req.headers.user_zip
-        const zip_results = await zip_check(user_zip)
-        res.json(zip_results)
+        const google_scrape = new GoogleScrape(user_zip)
+        res.json(await google_scrape.get_dealerships_list())
 })
 
 module.exports = router
