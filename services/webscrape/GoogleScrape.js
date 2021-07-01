@@ -6,7 +6,7 @@ class GoogleScrape {
     this.vehicle_search_link = vehicle_search_link;
   }
 
-  async get_data() {
+  get_data = async () => {
     try {
       let user_city = await zip_check(this.user_zip);
       const google_url = `https://www.google.com/search?q=${this.vehicle_search_link}+for+sale+in+`;
@@ -48,7 +48,7 @@ class GoogleScrape {
     return google_info;
   }
 
-  async get_data_html() {
+  get_data_html = async () => {
     const google_info = await this.get_data()
     const sites = []
     const browser = await puppeteer.launch({ headless: true });
