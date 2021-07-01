@@ -49,42 +49,30 @@ class GoogleScrape {
   }
 
   async get_data_html() {
-    const browser = await puppeteer.launch({ headless: false });
-    const page = await browser.newPage();
     const google_info = await this.get_data()
-    // const results = []
+    const sites = []
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0); 
 
-    // for (let i = 0; i < google_info.length; i++) {
-    //   const url = google_info[i].page_link;
-    //   await page.goto(url);
-    //   const page_info = await page.evaluate(() => {
-    //     const container = document.querySelectorAll("div")
-    //     return container
-    //   })
-
-    //   results.push({ page: page_info})
-    //   // vehicle_containers.forEach(element => {
-    //   //   results.push(element.innerText)
-    //   // })
-    // }
-
-    await page.goto(google_info[2].page_link);
-
-    const page_info = await page.evaluate(() => {
-      const containers = document.querySelectorAll("div")
-      // const containers_info = []
-
-      // containers.forEach(element => {
-      //   containers_info.push(element.querySelector("*"))
-      // })
-
-      return containers
-    })
+    for (let i = 0; i < google_info.length; i++) {
+      const url = google_info[i].page_link;
+      await page.goto(url);
+            
+      const info = await page.evaluate(() => {
+        const page_containers = document.querySelectorAll("div");
+        const pages = [];
+        page_containers.forEach((element) => {
+          pages.push(element.innerHTML.trim());
+        });
+        return pages;  
+      })
+      sites.push({url: info})
+    }
 
     await browser.close();
-    return page_info
+    return sites
   }
-
 }
 
 module.exports = GoogleScrape;
