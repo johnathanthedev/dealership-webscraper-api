@@ -1,12 +1,13 @@
 const puppeteer = require("puppeteer");
 const zip_check = require("../zip/zip_check");
+const Parser = require("../../lib/helpers/Parser")
 class GoogleScrape {
   constructor(user_zip, vehicle_search_link) {
     this.user_zip = user_zip;
     this.vehicle_search_link = vehicle_search_link;
   }
 
-  async get_car_list() {
+  get_data = async () => {
     try {
       let user_city = await zip_check(this.user_zip);
       const google_url = `https://www.google.com/search?q=${this.vehicle_search_link}+for+sale+in+`;
@@ -17,24 +18,12 @@ class GoogleScrape {
         return { error_message: "More than one city available" };
       }
 
-      const browser = await puppeteer.launch({ headless: false });
+      const browser = await puppeteer.launch({ headless: true });
       const page = await browser.newPage();
       user_city = user_city[0].city;
       await page.goto(`${google_url}${user_city}`);
 
-      const grab_google_info = await page.evaluate(() => {
-        const page_containers = document.querySelectorAll("div.g");
-        const pages = [];
-        page_containers.forEach((element) => {
-          const page_link = element.querySelector("a").getAttribute("href");
-          const page_title = element.querySelector("a > h3").innerHTML;
-          pages.push({
-            page_title,
-            page_link,
-          });
-        });
-        return pages;
-      });
+      const grab_google_info = await this.grab_google_info(page)
 
       await browser.close();
       return grab_google_info;
@@ -43,6 +32,62 @@ class GoogleScrape {
     }
   }
 
+  grab_google_info = async page => {
+    const google_info = await page.evaluate(() => {
+      const page_containers = document.querySelectorAll("div.g");
+      const pages = [];
+      page_containers.forEach((element) => {
+        const page_link = element.querySelector("a").getAttribute("href");
+        const page_title = element.querySelector("a > h3").innerHTML;
+        pages.push({
+          page_title,
+          page_link,
+        });
+      });
+      return pages;  
+    })
+    return google_info;
+  }
+
+  get_data_html = async () => {
+    const google_info = await this.get_data()
+    const sites = []
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0); 
+
+    for (let i = 0; i < google_info.length; i++) {
+      const url = google_info[i].page_link;
+      await page.goto(url);
+            
+      const info = await page.evaluate(() => {
+        const page_containers = document.querySelectorAll("div");
+        const pages = [];
+        page_containers.forEach((element) => {
+          pages.push(element.innerHTML.trim());
+        });
+        return pages;  
+      })
+      sites.push(info)
+    }
+
+    await browser.close();
+
+    const parsed_html = this.parse_html(sites)
+    return parsed_html
+  }
+
+  parse_html = (html_array) => {
+    const parsed_arr = []
+    html_array.forEach(html_array => {
+      html_array.forEach(element => {
+        const vehicle_name = new Parser(this.vehicle_search_link).URLToString()
+        const vehicle_element = element.includes(vehicle_name) && element
+        vehicle_element && parsed_arr.push(vehicle_element)
+      })
+    })
+    return parsed_arr
+  }
 }
 
 module.exports = GoogleScrape;
