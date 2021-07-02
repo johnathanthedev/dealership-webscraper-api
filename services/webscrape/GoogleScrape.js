@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const zip_check = require("../zip/zip_check");
+const Parser = require("../../lib/helpers/Parser")
 class GoogleScrape {
   constructor(user_zip, vehicle_search_link) {
     this.user_zip = user_zip;
@@ -67,11 +68,25 @@ class GoogleScrape {
         });
         return pages;  
       })
-      sites.push({url: info})
+      sites.push(info)
     }
 
     await browser.close();
-    return sites
+
+    const parsed_html = this.parse_html(sites)
+    return parsed_html
+  }
+
+  parse_html = (html_array) => {
+    const parsed_arr = []
+    html_array.forEach(html_array => {
+      html_array.forEach(element => {
+        const vehicle_name = new Parser(this.vehicle_search_link).URLToString()
+        const vehicle_element = element.includes(vehicle_name) && element
+        vehicle_element && parsed_arr.push(vehicle_element)
+      })
+    })
+    return parsed_arr
   }
 }
 
